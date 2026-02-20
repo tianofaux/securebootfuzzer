@@ -75,7 +75,7 @@ class VirtualMachine:
                 or (qemu_process.returncode is not None and qemu_process.returncode != 0)
             ):
                 logger.error(
-                    "QEMU reported an error:\n{}",
+                    "QEMU reported an error. Logs:\n{}",
                     '\n'.join(lines)
                 )
 
