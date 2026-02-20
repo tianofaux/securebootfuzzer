@@ -66,6 +66,7 @@ class VirtualMachine:
         while True:
             line = await qemu_process.stderr.readline()
             message = line.decode()
+            lines.append(message)
 
             if (
                 "cannot set up" in message.lower()
@@ -83,8 +84,6 @@ class VirtualMachine:
 
                 self.qemu_process = None # Signal death
                 break
-
-            lines.append(message)
 
     async def start(self):
         args = [
