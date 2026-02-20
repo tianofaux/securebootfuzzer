@@ -1,0 +1,28 @@
+[project]
+name = "securebootfuzzer"
+version = "0.1.0"
+description = "SecureBoot fuzzer using QEMU and LLDB"
+authors = [
+    {name = "AstonishedLiker",email = "alexis.lecam@hexaliker.fr"}
+]
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "qemu-qmp (>=0.0.5,<0.0.6)",
+    "asyncio (>=4.0.0,<5.0.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "argparse (>=1.4.0,<2.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "securebootfuzzer", from = "src"}]
+
+[tool.poetry.scripts]
+securebootfuzzer = "securebootfuzzer.main:sync_main"
+
+[tool.poetry.dependencies]
+lldb = {path = "usr/lib/python3.14/site-packages/lldb", develop = true}
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
