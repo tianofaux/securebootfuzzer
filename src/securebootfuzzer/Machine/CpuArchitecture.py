@@ -7,10 +7,10 @@ class CpuArchitectureType(Enum):
     X86_32 = 1 # For i386/i686
     X86_64 = 2 # For x86_64/amd64
     AARCH64 = 3
-    RISC_V_32 = 5
-    RISC_V_64 = 6
-    POWERPC_32 = 7
-    POWERPC_64 = 8
+    RISC_V_32 = 4
+    RISC_V_64 = 5
+    POWERPC_32 = 6
+    POWERPC_64 = 7
 
 machine_mapping = {
     'i386': CpuArchitectureType.X86_32,
