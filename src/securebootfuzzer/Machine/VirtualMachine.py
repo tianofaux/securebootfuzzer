@@ -82,6 +82,10 @@ class VirtualMachine:
                 logger.trace("Calling health callback")
                 self.on_health_degradation_callback()
 
+                if TYPE_CHECKING:
+                    assert self.qemu_process # Pyright
+
+                self.qemu_process.kill()
                 self.qemu_process = None # Signal death
                 break
 
