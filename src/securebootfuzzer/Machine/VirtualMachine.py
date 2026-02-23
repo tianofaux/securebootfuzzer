@@ -43,7 +43,7 @@ class VirtualMachine:
 
         if not shutil.which(get_qemu_binary(vm_cpu_architecture)):
             logger.critical(
-                "`{}` not found in PATH. Required to create qcow2 vmstate sink.",
+                "`{}` not found in PATH. Required to create guests VMs.",
                 get_qemu_binary(vm_cpu_architecture)
             )
             exit(1)
