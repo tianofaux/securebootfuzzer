@@ -1,3 +1,4 @@
 **/__pycache__
 securebootfuzzer_storage
 securebootfuzzer.log
+*.sock
