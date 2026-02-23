@@ -18,7 +18,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--firmware-variables-path",
-    dest="fw_variables_path",
+    dest="fw_vars_path",
 	help="Firmware variables file location, required in split OVMF firmwares",
 )
 
@@ -44,7 +44,7 @@ parser.add_argument(
 	help="Firmware source tree location"
 )
 
-# hah, BDS reference, get it? because "b", "d", and "s" in order!
+# hah, BDS reference, get it? because "b", "d", and "s" are in order!
 # feel free to make a PR removing the unfunny comment above
 
 parser.add_argument(
