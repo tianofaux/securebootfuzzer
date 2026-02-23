@@ -1,17 +1,27 @@
 from loguru import logger
 
-import qemu.qmp
 import asyncio
+import shutil
 import sys
+import os
 
-sys.path.append("/usr/lib/python3.14/site-packages")
-import lldb # let's pray that this works in different environments for now!!
+sys.path.append("/usr/lib/python3.14/site-packages") # enables LLDB import
 
 from securebootfuzzer.Machine.VirtualMachine import VirtualMachine, CpuArchitectureType, get_cpu_enum
 from securebootfuzzer.CliParser import parser
 
+def prune_dead_guests(guests: list[VirtualMachine]) -> list[VirtualMachine]:
+    guests[:] = [
+        guest
+        for guest in guests
+        if guest.qemu_process is not None
+        and guest.qemu_process.returncode is None
+    ]
+
+    return guests
+
 def stub():
-    pass
+    return
 
 @logger.catch
 async def main() -> None:
@@ -31,28 +41,43 @@ async def main() -> None:
     logger.info("Tianofaux says Bonjour!")
     logger.info("Will be fuzzing UEFI firmware '{}' for architecture '{}'", args.fw_binary_path, vm_cpu_architecture)
 
-    # For now I just want to see if bringing up vms work
-    guest = VirtualMachine(
-        vm_cpu_architecture,
-        args.vm_memory,
-        True,
-        args.storage_path,
-        args.fw_binary_path,
-        None,
-        "",
-        "",
+    # bring up
+    guests: list[VirtualMachine] = []
+    for i in range(args.concurrent_vms):
+        vm_root_dir = f"{args.storage_path}/vm_{i}"
+        os.mkdir(vm_root_dir)
 
-        on_anomaly_callback = stub,
-        on_health_degradation_callback= stub,
-    )
+        guest = VirtualMachine(
+            vm_cpu_architecture,
+            args.vm_memory,
+            args.kvm_enabled,
+            vm_root_dir,
+            args.fw_binary_path,
+            args.fw_vars_path,
+            args.fw_symbols_path,
+            args.fw_source_path,
+            on_health_degradation_callback=stub,
+            on_anomaly_callback=stub
+        )
 
-    await guest.start()
-    logger.info("Started guest!")
+        guests.append(guest)
+        await guest.start()
+        await guest.save_snapshot("reset_vector") # CPU is disabled at this instant. We are at the reset vector.
+        await guest.resume()
 
-    await asyncio.sleep(5)
+    logger.debug("Testing loading reset vector snapshot")
 
-    if guest.qemu_process:
-        guest.shutdown()
+    for i in range(5):
+        logger.debug("Testing iter {}", i)
+        for guest in prune_dead_guests(guests):
+            await guest.load_snapshot("reset_vector")
+        await asyncio.sleep(1)
+
+    logger.debug("Shutting down all guests")
+
+    for guest in prune_dead_guests(guests):
+        await guest.shutdown()
+        shutil.rmtree(guest.vm_root_dir)
 
 def sync_main() -> None:
     asyncio.run(main())
